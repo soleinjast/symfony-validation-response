@@ -1,0 +1,15 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  # Formatters
+  Soleinjast\ValidationResponse\Formatter\SimpleFormatter: ~
+
+  # Event Listener
+  Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener:
+    arguments:
+      $formatter: '@Soleinjast\ValidationResponse\Formatter\SimpleFormatter'
+      $statusCode: 422
+    tags:
+      - { name: kernel.event_subscriber }
