@@ -171,8 +171,8 @@ Create `config/packages/validation_response.yaml`:
 
 ```yaml
 validation_response:
-    # HTTP status code for validation errors (default: 422)
-    status_code: 422
+  # HTTP status code for validation errors (default: 422)
+  status_code: 422
 ```
 
 ### Available Options
@@ -229,15 +229,19 @@ Update `config/services.yaml`:
 
 ```yaml
 services:
-    # Your custom formatter
-    App\Formatter\MyCustomFormatter: ~
+  # Your custom formatter
+  App\Formatter\MyCustomFormatter: ~
 
-    # Override the default formatter
-    Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener:
-        arguments:
-            $formatter: '@App\Formatter\MyCustomFormatter'
-            $statusCode: 422
+  # Override the default formatter
+  Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener:
+    arguments:
+      $formatter: '@App\Formatter\MyCustomFormatter'
+      $statusCode: 422
+    tags:
+      - { name: kernel.event_subscriber }
 ```
+
+**Important:** The `tags` section ensures the listener is properly registered as an event subscriber.
 
 ### Step 3: Get Custom Response Format
 
