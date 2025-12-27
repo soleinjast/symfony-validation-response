@@ -6,7 +6,7 @@ namespace Soleinjast\ValidationResponse\Formatter;
 /**
  * Interface for formatting validation violations into response arrays.
  */
-interface Formatterinterface
+interface FormatterInterface
 {
     /**
      * Format validation violations into a response array.

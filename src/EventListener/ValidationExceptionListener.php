@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Soleinjast\ValidationResponse\EventListener;
 
-use Soleinjast\ValidationResponse\Formatter\Formatterinterface;
+use Soleinjast\ValidationResponse\Formatter\FormatterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -12,10 +12,10 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
-class ValidationExceptionListener implements EventSubscriberInterface
+final class ValidationExceptionListener implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Formatterinterface $formatter,
+        private readonly FormatterInterface $formatter,
         private readonly int $statusCode,
     )
     {
