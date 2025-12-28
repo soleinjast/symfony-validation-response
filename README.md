@@ -1,11 +1,16 @@
 # Symfony Validation Response Bundle
 
-[![Latest Stable Version](https://poser.pugx.org/soleinjast/symfony-validation-response/v)](https://packagist.org/packages/soleinjast/symfony-validation-response)
-[![Total Downloads](https://poser.pugx.org/soleinjast/symfony-validation-response/downloads)](https://packagist.org/packages/soleinjast/symfony-validation-response)
-[![License](https://poser.pugx.org/soleinjast/symfony-validation-response/license)](https://packagist.org/packages/soleinjast/symfony-validation-response)
-[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-8892BF.svg)](https://php.net/)
-[![Symfony Version](https://img.shields.io/badge/symfony-%5E6.3%20%7C%20%5E7.0-000000.svg)](https://symfony.com/)
+<p align="center">
+  <img src="/docs/doc-banner-img.png" alt="Symfony Validation Response Bundle" width="800">
+</p>
 
+<p align="center">
+  <a href="https://packagist.org/packages/soleinjast/symfony-validation-response"><img src="https://poser.pugx.org/soleinjast/symfony-validation-response/v" alt="Latest Stable Version"></a>
+  <a href="https://packagist.org/packages/soleinjast/symfony-validation-response"><img src="https://poser.pugx.org/soleinjast/symfony-validation-response/downloads" alt="Total Downloads"></a>
+  <a href="https://packagist.org/packages/soleinjast/symfony-validation-response"><img src="https://poser.pugx.org/soleinjast/symfony-validation-response/license" alt="License"></a>
+  <img src="https://img.shields.io/badge/php-%3E%3D8.1-8892BF.svg" alt="PHP Version">
+  <img src="https://img.shields.io/badge/symfony-%5E6.3%20%7C%20%5E7.0-000000.svg" alt="Symfony Version">
+</p>
 A lightweight Symfony bundle that automatically transforms validation errors from `#[MapRequestPayload]`, `#[MapQueryString]`, and `#[MapUploadedFile]` attributes into clean, developer-friendly JSON responses.
 
 Stop writing repetitive error handling code in every controller. Let this bundle handle it for you.
@@ -17,6 +22,7 @@ Stop writing repetitive error handling code in every controller. Let this bundle
 - [Features](#-features)
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
+- [Response Formats](#-response-formats)
 - [Configuration](#%EF%B8%8F-configuration)
 - [Custom Formatter](#-custom-formatter)
 - [Usage Examples](#-usage-examples)
@@ -30,7 +36,9 @@ Stop writing repetitive error handling code in every controller. Let this bundle
 ## ✨ Features
 
 - ✅ **Zero Configuration** - Works immediately after installation with sensible defaults
-- ✅ **Clean JSON Responses** - Removes verbose Symfony debug output in favor of clean error messages
+- ✅ **Multiple Formats** - Simple format (default) or RFC 7807 Problem Details
+- ✅ **Clean JSON Responses** - No verbose Symfony debug output
+- ✅ **RFC 7807 Compliant** - Industry-standard Problem Details for HTTP APIs
 - ✅ **Automatic Error Formatting** - Intercepts validation exceptions and formats them consistently
 - ✅ **Type-Safe** - Built with PHP 8.1+ strict types and modern practices
 - ✅ **Lightweight** - Minimal footprint with no external dependencies beyond Symfony core
@@ -150,9 +158,28 @@ curl -X POST http://localhost:8000/api/products \
 ```json
 {
   "errors": {
-    "name": "Product name is required",
-    "price": "Price must be zero or positive",
-    "status": "Status must be one of: active, inactive, draft"
+    "name": [
+      "Product name is required"
+    ],
+    "price": [
+      "Price must be zero or positive"
+    ],
+    "status": [
+      "Status must be one of: active, inactive, draft"
+    ]
+  }
+}
+```
+
+**If a field has multiple validation errors, they're grouped together:**
+
+```json
+{
+  "errors": {
+    "name": [
+      "Product name is required",
+      "Product name must be at least 3 characters long"
+    ]
   }
 }
 ```
@@ -161,25 +188,95 @@ curl -X POST http://localhost:8000/api/products \
 
 ---
 
+## 🎨 Response Formats
+
+The bundle supports two output formats:
+
+### Simple Format (Default)
+
+Clean, minimal error responses:
+
+```json
+{
+  "errors": {
+    "email": [
+      "Invalid email format"
+    ],
+    "age": [
+      "Must be at least 18"
+    ]
+  }
+}
+```
+
+### RFC 7807 Problem Details Format
+
+Industry-standard error responses ([RFC 7807](https://tools.ietf.org/html/rfc7807)):
+
+```json
+{
+  "type": "https://example.com/validation-error",
+  "title": "Validation Failed",
+  "status": 422,
+  "detail": "2 validation errors detected",
+  "violations": [
+    {
+      "field": "email",
+      "message": "Invalid email format",
+      "code": "bd79c0ab-ddba-46cc-a703-a7a4b08de310"
+    },
+    {
+      "field": "age",
+      "message": "Must be at least 18",
+      "code": "..."
+    }
+  ]
+}
+```
+
+**Note:** RFC 7807 responses include the correct `Content-Type: application/problem+json` header.
+
+---
+
 ## ⚙️ Configuration
 
 The bundle works out-of-the-box with zero configuration. However, you can customize it if needed.
 
-### Optional Configuration
+### Basic Configuration
 
 Create `config/packages/validation_response.yaml`:
 
 ```yaml
 validation_response:
-  # HTTP status code for validation errors (default: 422)
-  status_code: 422
+    # Choose response format: 'simple' or 'rfc7807' (default: 'simple')
+    format: 'simple'
+    # HTTP status code for validation errors (default: 422)
+    status_code: 422
 ```
+
+### RFC 7807 Configuration
+
+```yaml
+validation_response:
+    format: 'rfc7807'
+    rfc7807:
+        # URI reference identifying the problem type
+        type: 'https://api.example.com/errors/validation'
+        # Short, human-readable summary
+        title: 'Validation Error'
+
+```
+
+**Note:** RFC 7807 format always returns HTTP status 422 (Unprocessable Entity) as per the standard. The `status_code` configuration only applies to the Simple format.
 
 ### Available Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `status_code` | `integer` | `422` | HTTP status code returned for validation errors |
+| `format` | `string` | `'simple'` | Response format: `'simple'` or `'rfc7807'` |
+| `status_code` | `integer` | `422` | HTTP status code for validation errors (400-599) |
+| `rfc7807.type` | `string` | `'about:blank'` | URI identifying the problem type |
+| `rfc7807.title` | `string` | `'Validation Failed'` | Human-readable problem summary |
 
 ---
 
@@ -229,16 +326,16 @@ Update `config/services.yaml`:
 
 ```yaml
 services:
-  # Your custom formatter
-  App\Formatter\MyCustomFormatter: ~
+    # Your custom formatter
+    App\Formatter\MyCustomFormatter: ~
 
-  # Override the default formatter
-  Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener:
-    arguments:
-      $formatter: '@App\Formatter\MyCustomFormatter'
-      $statusCode: 422
-    tags:
-      - { name: kernel.event_subscriber }
+    # Override the default formatter
+    Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener:
+        arguments:
+            $formatter: '@App\Formatter\MyCustomFormatter'
+            $statusCode: 422
+        tags:
+            - { name: kernel.event_subscriber }
 ```
 
 **Important:** The `tags` section ensures the listener is properly registered as an event subscriber.
@@ -263,7 +360,7 @@ Now your validation errors will use your custom format:
     }
   ],
   "error_count": 2,
-  "timestamp": "2025-12-25T14:30:00+00:00"
+  "timestamp": "2025-12-27T14:30:00+00:00"
 }
 ```
 
@@ -282,7 +379,7 @@ final class TrackedFormatter implements FormatterInterface
     {
         $errors = [];
         foreach ($violations as $violation) {
-            $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            $errors[$violation->getPropertyPath()][] = $violation->getMessage();
         }
 
         return [
@@ -308,7 +405,7 @@ final class LocalizedFormatter implements FormatterInterface
         $errors = [];
         
         foreach ($violations as $violation) {
-            $errors[$violation->getPropertyPath()] = $this->translator->trans(
+            $errors[$violation->getPropertyPath()][] = $this->translator->trans(
                 $violation->getMessage(),
                 $violation->getParameters()
             );
@@ -316,47 +413,6 @@ final class LocalizedFormatter implements FormatterInterface
 
         return ['errors' => $errors];
     }
-}
-```
-
-**Example 3: Nested Error Structure**
-
-```php
-final class NestedFormatter implements FormatterInterface
-{
-    public function format(ConstraintViolationListInterface $violations): array
-    {
-        $errors = [];
-        
-        foreach ($violations as $violation) {
-            $path = $violation->getPropertyPath();
-            $parts = explode('.', $path);
-            
-            $current = &$errors;
-            foreach ($parts as $part) {
-                if (!isset($current[$part])) {
-                    $current[$part] = [];
-                }
-                $current = &$current[$part];
-            }
-            $current = $violation->getMessage();
-        }
-
-        return ['errors' => $errors];
-    }
-}
-```
-
-Response:
-```json
-{
-  "errors": {
-    "name": "This field is required",
-    "address": {
-      "street": "This field is required",
-      "city": "This field is required"
-    }
-  }
 }
 ```
 
@@ -434,9 +490,15 @@ final class CreateCustomerDto
 ```json
 {
   "errors": {
-    "name": "This field is required",
-    "address.street": "This field is required",
-    "address.zipCode": "Invalid zip code format"
+    "name": [
+      "This field is required"
+    ],
+    "address.street": [
+      "This field is required"
+    ],
+    "address.zipCode": [
+      "Invalid zip code format"
+    ]
   }
 }
 ```
@@ -591,7 +653,7 @@ If this package helps you, please consider:
 
 - [Symfony Validation Documentation](https://symfony.com/doc/current/validation.html)
 - [MapRequestPayload Documentation](https://symfony.com/doc/current/controller.html#mapping-request-payload)
-- [REST API Best Practices](https://www.ietf.org/rfc/rfc7807.txt)
+- [RFC 7807: Problem Details for HTTP APIs](https://tools.ietf.org/html/rfc7807)
 
 ---
 
