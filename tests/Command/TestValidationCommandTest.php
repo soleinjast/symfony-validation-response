@@ -63,6 +63,7 @@ final class TestValidationCommandTest extends TestCase
         $output = $this->commandTester->getDisplay();
 
         $this->assertStringContainsString('Validation Failed', $output);
+        $this->assertStringContainsString('[ERROR]', $output);
         $this->assertStringContainsString('Name is required', $output);
         $this->assertStringContainsString('Price must be positive', $output);
         $this->assertStringContainsString('Formatted Output', $output);
@@ -78,7 +79,8 @@ final class TestValidationCommandTest extends TestCase
 
         $output = $this->commandTester->getDisplay();
 
-        $this->assertStringContainsString('does not exist', $output);
+        $this->assertStringContainsString('Class not found', $output);
+        $this->assertStringContainsString('[ERROR]', $output);
         $this->assertSame(1, $this->commandTester->getStatusCode());
     }
 
@@ -117,7 +119,8 @@ final class TestValidationCommandTest extends TestCase
 
         $output = $this->commandTester->getDisplay();
 
-        $this->assertStringContainsString('does not exist', $output);
+        $this->assertStringContainsString('Class not found', $output);
+        $this->assertStringContainsString('[ERROR]', $output);
         $this->assertSame(1, $this->commandTester->getStatusCode());
     }
 
@@ -131,6 +134,7 @@ final class TestValidationCommandTest extends TestCase
         $output = $this->commandTester->getDisplay();
 
         $this->assertStringContainsString('Validation passed', $output);
+        $this->assertStringContainsString('[OK]', $output);
         $this->assertSame(0, $this->commandTester->getStatusCode());
     }
 }
