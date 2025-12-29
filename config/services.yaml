@@ -27,6 +27,6 @@ services:
     arguments:
       $validator: '@validator'
       $serializer: '@serializer'
-      $formatter: '@Soleinjast\ValidationResponse\Formatter\SimpleFormatter'
+      $formatter: '@Soleinjast\ValidationResponse\Formatter\FormatterInterface'
     tags:
       - { name: 'console.command' }
