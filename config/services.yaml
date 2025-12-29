@@ -3,8 +3,16 @@ services:
     autowire: true
     autoconfigure: true
 
+  # Auto-register all services in src/
+  Soleinjast\ValidationResponse\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/ValidationResponseBundle.php'
+
   # Formatters
   Soleinjast\ValidationResponse\Formatter\SimpleFormatter: ~
+  Soleinjast\ValidationResponse\Formatter\RFC7807Formatter: ~
 
   # Event Listener
   Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener:
@@ -13,3 +21,12 @@ services:
       $statusCode: 422
     tags:
       - { name: kernel.event_subscriber }
+
+  # Console Command
+  Soleinjast\ValidationResponse\Command\TestValidationCommand:
+    arguments:
+      $validator: '@validator'
+      $serializer: '@serializer'
+      $formatter: '@Soleinjast\ValidationResponse\Formatter\SimpleFormatter'
+    tags:
+      - { name: 'console.command' }
