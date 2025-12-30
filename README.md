@@ -26,6 +26,7 @@ Stop writing repetitive error handling code in every controller. Let this bundle
 - [Configuration](#%EF%B8%8F-configuration)
 - [Custom Formatter](#-custom-formatter)
 - [Usage Examples](#-usage-examples)
+- [CLI Testing Tool](#-cli-testing-tool)
 - [Testing](#-testing)
 - [Requirements](#-requirements)
 - [Contributing](#-contributing)
@@ -548,6 +549,106 @@ public function upload(
 ```
 
 ---
+
+## 🧪 CLI Testing Tool
+
+Test your DTOs directly from the command line without making HTTP requests:
+```bash
+# Test with invalid data
+php bin/console validation:test CreateProductDto '{"name":"","price":-100}'
+
+# Test with valid data
+php bin/console validation:test CreateProductDto '{"name":"Laptop","price":1000}'
+
+# Use fully qualified class name
+php bin/console validation:test 'App\Dto\CreateProductDto' '{"name":"Test"}'
+```
+
+**Example output for invalid data:**
+```
+ Validation Test
+ ===============
+
+Testing: App\Dto\CreateProductDto
+----------------------------------
+
+ ✓ JSON deserialized successfully
+
+ [ERROR] Validation Failed (2 errors)
+
+ ------- ---------------------------------- ----------
+  Field   Error Message                      Code
+ ------- ---------------------------------- ----------
+  name    Product name is required           c1051bb4...
+  price   Price must be zero or positive     778b3c5a...
+ ------- ---------------------------------- ----------
+
+ Formatted Output
+ ----------------
+
+ {
+     "errors": {
+         "name": [
+             "Product name is required"
+         ],
+         "price": [
+             "Price must be zero or positive"
+         ]
+     }
+ }
+```
+
+### Format Consistency
+
+The CLI command **respects your format configuration** from `validation_response.yaml`. This ensures that CLI testing output matches your actual API responses exactly.
+
+**Example with RFC 7807 format:**
+```yaml
+# config/packages/validation_response.yaml
+validation_response:
+    format: 'rfc7807'
+    rfc7807:
+        type: 'https://api.example.com/validation-error'
+        title: 'Request Validation Failed'
+```
+
+When you run the command, the formatted output will use RFC 7807:
+```json
+{
+    "type": "https://api.example.com/validation-error",
+    "title": "Request Validation Failed",
+    "status": 422,
+    "detail": "2 validation errors detected",
+    "violations": [
+        {
+            "field": "name",
+            "message": "Product name is required",
+            "code": "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
+        },
+        {
+            "field": "price",
+            "message": "Price must be zero or positive",
+            "code": "778b3c5a-d8f5-4f8a-9e98-c2e07b5d6f3d"
+        }
+    ]
+}
+```
+
+### Command Options
+
+The command automatically resolves DTO class names from common namespaces:
+
+- `App\Dto\`
+- `App\DTO\`
+- `App\Request\`
+- `App\Model\`
+
+So you can use either:
+- Short name: `CreateProductDto`
+- Fully qualified: `App\Dto\CreateProductDto`
+
+---
+
 
 ## 🧪 Testing
 
