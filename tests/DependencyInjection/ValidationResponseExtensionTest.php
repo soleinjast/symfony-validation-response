@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Soleinjast\ValidationResponse\Tests\DependencyInjection;
 
 use PHPUnit\Framework\TestCase;
+use Soleinjast\ValidationResponse\Command\TestValidationCommand;
 use Soleinjast\ValidationResponse\DependencyInjection\ValidationResponseExtension;
 use Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener;
 use Soleinjast\ValidationResponse\Formatter\SimpleFormatter;
@@ -200,6 +201,111 @@ final class ValidationResponseExtensionTest extends TestCase
         $this->assertSame(RFC7807Formatter::class, (string) $formatterArg);
 
         // Check RFC7807Formatter configuration
+        $formatterDef = $this->container->getDefinition(RFC7807Formatter::class);
+        $this->assertSame('https://api.example.com/errors/validation', $formatterDef->getArgument('$type'));
+        $this->assertSame('Request Validation Failed', $formatterDef->getArgument('$title'));
+    }
+
+    public function testCommandUsesSimpleFormatterByDefault(): void
+    {
+        $configs = [];
+
+        $this->extension->load($configs, $this->container);
+
+        $this->assertTrue($this->container->has(TestValidationCommand::class));
+
+        $commandDef = $this->container->getDefinition(TestValidationCommand::class);
+        $formatterArg = $commandDef->getArgument('$formatter');
+
+        $this->assertInstanceOf(Reference::class, $formatterArg);
+        $this->assertSame(SimpleFormatter::class, (string) $formatterArg);
+    }
+
+    public function testCommandUsesSimpleFormatterWhenConfigured(): void
+    {
+        $configs = [
+            [
+                'format' => 'simple',
+            ],
+        ];
+
+        $this->extension->load($configs, $this->container);
+
+        $commandDef = $this->container->getDefinition(TestValidationCommand::class);
+        $formatterArg = $commandDef->getArgument('$formatter');
+
+        $this->assertSame(SimpleFormatter::class, (string) $formatterArg);
+    }
+
+    public function testCommandAndListenerUseSameFormatter(): void
+    {
+        $configs = [
+            [
+                'format' => 'rfc7807',
+                'rfc7807' => [
+                    'type' => 'https://example.com/validation',
+                    'title' => 'Validation Error',
+                ],
+            ],
+        ];
+
+        $this->extension->load($configs, $this->container);
+
+        $listenerDef = $this->container->getDefinition(ValidationExceptionListener::class);
+        $commandDef = $this->container->getDefinition(TestValidationCommand::class);
+
+        $listenerFormatter = $listenerDef->getArgument('$formatter');
+        $commandFormatter = $commandDef->getArgument('$formatter');
+
+        // Both should use the same formatter
+        $this->assertSame((string) $listenerFormatter, (string) $commandFormatter);
+        $this->assertSame(RFC7807Formatter::class, (string) $commandFormatter);
+    }
+
+    public function testCommandFormatterChangesWithConfigurationFormat(): void
+    {
+        // Load with simple format
+        $configs1 = [
+            ['format' => 'simple'],
+        ];
+        $this->extension->load($configs1, $this->container);
+
+        $commandDef = $this->container->getDefinition(TestValidationCommand::class);
+        $formatterArg = $commandDef->getArgument('$formatter');
+        $this->assertSame(SimpleFormatter::class, (string) $formatterArg);
+
+        // Reload with rfc7807 format
+        $configs2 = [
+            ['format' => 'rfc7807'],
+        ];
+        $this->extension->load($configs2, $this->container);
+
+        $commandDef = $this->container->getDefinition(TestValidationCommand::class);
+        $formatterArg = $commandDef->getArgument('$formatter');
+        $this->assertSame(RFC7807Formatter::class, (string) $formatterArg);
+    }
+
+    public function testCommandWithCompleteRFC7807Configuration(): void
+    {
+        $configs = [
+            [
+                'format' => 'rfc7807',
+                'status_code' => 400,
+                'rfc7807' => [
+                    'type' => 'https://api.example.com/errors/validation',
+                    'title' => 'Request Validation Failed',
+                ],
+            ],
+        ];
+
+        $this->extension->load($configs, $this->container);
+
+        // Verify command uses RFC7807Formatter
+        $commandDef = $this->container->getDefinition(TestValidationCommand::class);
+        $formatterArg = $commandDef->getArgument('$formatter');
+        $this->assertSame(RFC7807Formatter::class, (string) $formatterArg);
+
+        // Verify RFC7807Formatter is configured correctly
         $formatterDef = $this->container->getDefinition(RFC7807Formatter::class);
         $this->assertSame('https://api.example.com/errors/validation', $formatterDef->getArgument('$type'));
         $this->assertSame('Request Validation Failed', $formatterDef->getArgument('$title'));

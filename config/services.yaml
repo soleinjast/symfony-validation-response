@@ -25,8 +25,4 @@ services:
   # Console Command
   Soleinjast\ValidationResponse\Command\TestValidationCommand:
     arguments:
-      $validator: '@validator'
-      $serializer: '@serializer'
-      $formatter: '@Soleinjast\ValidationResponse\Formatter\FormatterInterface'
-    tags:
-      - { name: 'console.command' }
+      $formatter: '@Soleinjast\ValidationResponse\Formatter\SimpleFormatter'

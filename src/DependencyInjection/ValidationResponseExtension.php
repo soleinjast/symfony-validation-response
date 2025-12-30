@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Soleinjast\ValidationResponse\DependencyInjection;
 
+use Soleinjast\ValidationResponse\Command\TestValidationCommand;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -39,8 +40,12 @@ final class ValidationResponseExtension extends Extension
             'rfc7807' => RFC7807Formatter::class,
             default => SimpleFormatter::class,
         };
+        // Configure the event listener
         $listenerDefinition = $container->getDefinition(ValidationExceptionListener::class);
         $listenerDefinition->setArgument('$formatter', new Reference($formatterClass));
         $listenerDefinition->setArgument('$statusCode', $config['status_code']);
+        // Configure the command with the same formatter
+        $commandDefinition = $container->getDefinition(TestValidationCommand::class);
+        $commandDefinition->setArgument('$formatter', new Reference($formatterClass));
     }
 }
