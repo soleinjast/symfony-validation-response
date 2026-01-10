@@ -210,6 +210,26 @@ Clean, minimal error responses:
 }
 ```
 
+### Simple Nested Format
+
+Clean, minimal error responses:
+
+```json
+{
+  "errors": {
+    "price": {
+      "value": [
+        "Price must be positive",
+        "Price must be at least 10"
+      ],
+      "currency": [
+        "Invalid currency code"
+      ]
+    }
+  }
+}
+```
+
 ### RFC 7807 Problem Details Format
 
 Industry-standard error responses ([RFC 7807](https://tools.ietf.org/html/rfc7807)):
@@ -249,7 +269,7 @@ Create `config/packages/validation_response.yaml`:
 
 ```yaml
 validation_response:
-    # Choose response format: 'simple' or 'rfc7807' (default: 'simple')
+    # Choose response format: 'simple', 'rfc7807' or 'simple-nested' (default: 'simple')
     format: 'simple'
     # HTTP status code for validation errors (default: 422)
     status_code: 422
@@ -272,12 +292,12 @@ validation_response:
 
 ### Available Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `format` | `string` | `'simple'` | Response format: `'simple'` or `'rfc7807'` |
-| `status_code` | `integer` | `422` | HTTP status code for validation errors (400-599) |
-| `rfc7807.type` | `string` | `'about:blank'` | URI identifying the problem type |
-| `rfc7807.title` | `string` | `'Validation Failed'` | Human-readable problem summary |
+| Option | Type | Default | Description                                                 |
+|--------|------|---------|-------------------------------------------------------------|
+| `format` | `string` | `'simple'` | Response format: `'simple'`, `'rfc7807'` or `'simple-nested'` |
+| `status_code` | `integer` | `422` | HTTP status code for validation errors (400-599)            |
+| `rfc7807.type` | `string` | `'about:blank'` | URI identifying the problem type                            |
+| `rfc7807.title` | `string` | `'Validation Failed'` | Human-readable problem summary                              |
 
 ---
 
@@ -504,6 +524,26 @@ final class CreateCustomerDto
 }
 ```
 
+or if using `simple-nested` format, the response will be:
+
+```json
+{
+  "errors": {
+    "name": [
+      "This field is required"
+    ],
+    "address": {
+      "street": [
+        "This field is required"
+      ],
+      "zipCode": [
+        "Invalid zip code format"
+      ]
+    }
+  }
+}
+```
+
 ### Example 3: Query String Validation
 
 ```php
@@ -670,7 +710,7 @@ vendor/bin/phpunit --coverage-html coverage
 ## 📋 Requirements
 
 - **PHP**: 8.1 or higher
-- **Symfony**: 6.3 or higher (including Symfony 7.x)
+- **Symfony**: 6.3 or higher (including Symfony 7.x and 8.x)
 
 ### Why These Requirements?
 

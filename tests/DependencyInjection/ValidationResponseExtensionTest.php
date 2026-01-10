@@ -10,6 +10,7 @@ use Soleinjast\ValidationResponse\DependencyInjection\ValidationResponseExtensio
 use Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener;
 use Soleinjast\ValidationResponse\Formatter\SimpleFormatter;
 use Soleinjast\ValidationResponse\Formatter\RFC7807Formatter;
+use Soleinjast\ValidationResponse\Formatter\SimpleNestedFormatter;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -36,6 +37,9 @@ final class ValidationResponseExtensionTest extends TestCase
 
         // RFC7807Formatter should be registered
         $this->assertTrue($this->container->has(RFC7807Formatter::class));
+
+        // SimpleNestedFormatter should be registered
+        $this->assertTrue($this->container->has(SimpleNestedFormatter::class));
 
         // Listener should be configured
         $this->assertTrue($this->container->has(ValidationExceptionListener::class));
@@ -67,6 +71,27 @@ final class ValidationResponseExtensionTest extends TestCase
         // Should use SimpleFormatter
         $formatterArg = $listenerDef->getArgument('$formatter');
         $this->assertSame(SimpleFormatter::class, (string) $formatterArg);
+
+        // Should use custom status code
+        $this->assertSame(400, $listenerDef->getArgument('$statusCode'));
+    }
+
+    public function testLoadWithSimpleNestedFormat(): void
+    {
+        $configs = [
+            [
+                'format' => 'simple-nested',
+                'status_code' => 400,
+            ],
+        ];
+
+        $this->extension->load($configs, $this->container);
+
+        $listenerDef = $this->container->getDefinition(ValidationExceptionListener::class);
+
+        // Should use SimpleFormatter
+        $formatterArg = $listenerDef->getArgument('$formatter');
+        $this->assertSame(SimpleNestedFormatter::class, (string) $formatterArg);
 
         // Should use custom status code
         $this->assertSame(400, $listenerDef->getArgument('$statusCode'));

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Soleinjast\ValidationResponse\DependencyInjection;
 
 use Soleinjast\ValidationResponse\Command\TestValidationCommand;
+use Soleinjast\ValidationResponse\Formatter\SimpleNestedFormatter;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -36,8 +37,11 @@ final class ValidationResponseExtension extends Extension
                 '$type' => $config['rfc7807']['type'],
                 '$title' => $config['rfc7807']['title'],
             ]);
+        $container->register(SimpleNestedFormatter::class)
+            ->setPublic(false);
         $formatterClass = match($config['format']) {
             'rfc7807' => RFC7807Formatter::class,
+            'simple-nested' => SimpleNestedFormatter::class,
             default => SimpleFormatter::class,
         };
         // Configure the event listener

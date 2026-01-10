@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Soleinjast\ValidationResponse\Tests\Formatter;
 
 use PHPUnit\Framework\TestCase;
-use Soleinjast\ValidationResponse\Formatter\SimpleFormatter;
+use Soleinjast\ValidationResponse\Formatter\SimpleNestedFormatter;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-final class SimpleFormatterTest extends TestCase
+final class SimpleNestedFormatterTest extends TestCase
 {
-    private readonly SimpleFormatter $formatter;
+    private readonly SimpleNestedFormatter $formatter;
     protected function setUp(): void
     {
-        $this->formatter = new SimpleFormatter();
+        $this->formatter = new SimpleNestedFormatter();
     }
 
     public function testFormatEmptyViolations(): void
@@ -77,7 +77,7 @@ final class SimpleFormatterTest extends TestCase
         ];
         $this->assertSame($expected, $result);
     }
-    
+
     public function testFormatNestedPropertyPath(): void{
         $constraints = [
             new ConstraintViolation(
@@ -101,9 +101,11 @@ final class SimpleFormatterTest extends TestCase
         $result = $this->formatter->format($violations);
         $expected = [
             'errors' => [
-                'address.city' => [
-                    'Invalid city',
-                    'Wrong city',
+                'address' => [
+                    'city' => [
+                        'Invalid city',
+                        'Wrong city',
+                    ],
                 ],
             ]
         ];
