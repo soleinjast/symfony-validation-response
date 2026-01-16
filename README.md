@@ -8,8 +8,8 @@
   <a href="https://packagist.org/packages/soleinjast/symfony-validation-response"><img src="https://poser.pugx.org/soleinjast/symfony-validation-response/v" alt="Latest Stable Version"></a>
   <a href="https://packagist.org/packages/soleinjast/symfony-validation-response"><img src="https://poser.pugx.org/soleinjast/symfony-validation-response/downloads" alt="Total Downloads"></a>
   <a href="https://packagist.org/packages/soleinjast/symfony-validation-response"><img src="https://poser.pugx.org/soleinjast/symfony-validation-response/license" alt="License"></a>
-  <img src="https://img.shields.io/badge/php-%3E%3D8.1-8892BF.svg" alt="PHP Version">
-  <img src="https://img.shields.io/badge/symfony-%5E6.3%20%7C%20%5E7.0-000000.svg" alt="Symfony Version">
+  <img src="https://img.shields.io/badge/php-%3E%3D8.4-8892BF.svg" alt="PHP Version">
+  <img src="https://img.shields.io/badge/symfony-%5E6.3%20%7C%20%5E7.0%20%7C%20%5E8.0-000000.svg" alt="Symfony Version">
 </p>
 A lightweight Symfony bundle that automatically transforms validation errors from `#[MapRequestPayload]`, `#[MapQueryString]`, and `#[MapUploadedFile]` attributes into clean, developer-friendly JSON responses.
 
@@ -41,7 +41,7 @@ Stop writing repetitive error handling code in every controller. Let this bundle
 - ✅ **Clean JSON Responses** - No verbose Symfony debug output
 - ✅ **RFC 7807 Compliant** - Industry-standard Problem Details for HTTP APIs
 - ✅ **Automatic Error Formatting** - Intercepts validation exceptions and formats them consistently
-- ✅ **Type-Safe** - Built with PHP 8.1+ strict types and modern practices
+- ✅ **Type-Safe** - Built with PHP 8.4+ strict types and modern practices
 - ✅ **Lightweight** - Minimal footprint with no external dependencies beyond Symfony core
 - ✅ **Well Tested** - Comprehensive PHPUnit test coverage
 - ✅ **Production Ready** - Battle-tested error handling for REST APIs
@@ -669,12 +669,12 @@ vendor/bin/phpunit --coverage-html coverage
 
 ## 📋 Requirements
 
-- **PHP**: 8.1 or higher
-- **Symfony**: 6.3 or higher (including Symfony 7.x)
+- **PHP**: 8.4 or higher
+- **Symfony**: 6.3 or higher (including Symfony 7.x and 8.0)
 
 ### Why These Requirements?
 
-- **PHP 8.1+**: Enables modern features like `readonly` properties and constructor property promotion
+- **PHP 8.4+**: Enables modern features and is required by Symfony 8.0 components
 - **Symfony 6.3+**: Required for `#[MapRequestPayload]` attribute support
 
 ---
