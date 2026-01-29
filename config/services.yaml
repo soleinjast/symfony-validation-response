@@ -12,6 +12,7 @@ services:
 
   # Formatters
   Soleinjast\ValidationResponse\Formatter\SimpleFormatter: ~
+  Soleinjast\ValidationResponse\Formatter\NestedFormatter: ~
   Soleinjast\ValidationResponse\Formatter\RFC7807Formatter: ~
 
   # Event Listener

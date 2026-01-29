@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener;
 use Soleinjast\ValidationResponse\Formatter\SimpleFormatter;
 use Soleinjast\ValidationResponse\Formatter\RFC7807Formatter;
+use Soleinjast\ValidationResponse\Formatter\NestedFormatter;
 
 /**
  * Loads and manages the ValidationResponse bundle configuration.
@@ -30,6 +31,8 @@ final class ValidationResponseExtension extends Extension
         $loader->load('services.yaml');
         $container->register(SimpleFormatter::class)
             ->setPublic(false);
+        $container->register(NestedFormatter::class)
+            ->setPublic(false);
         $container->register(RFC7807Formatter::class)
             ->setPublic(false)
             ->setArguments([
@@ -38,6 +41,7 @@ final class ValidationResponseExtension extends Extension
             ]);
         $formatterClass = match($config['format']) {
             'rfc7807' => RFC7807Formatter::class,
+            'nested' => NestedFormatter::class,
             default => SimpleFormatter::class,
         };
         // Configure the event listener
