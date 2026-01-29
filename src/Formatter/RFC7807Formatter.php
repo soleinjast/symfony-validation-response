@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 namespace Soleinjast\ValidationResponse\Formatter;
+
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+
 class RFC7807Formatter implements FormatterInterface
 {
 
@@ -19,7 +22,7 @@ class RFC7807Formatter implements FormatterInterface
         private readonly string $title = 'Validation Failed')
     {}
 
-    public function format(\Symfony\Component\Validator\ConstraintViolationListInterface $violations): array
+    public function format(ConstraintViolationListInterface $violations): array
     {
         $errors = [];
         foreach ($violations as $violation) {

@@ -12,11 +12,11 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
-final class ValidationExceptionListener implements EventSubscriberInterface
+final readonly class ValidationExceptionListener implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly FormatterInterface $formatter,
-        private readonly int $statusCode,
+        private FormatterInterface $formatter,
+        private int $statusCode,
     )
     {
 

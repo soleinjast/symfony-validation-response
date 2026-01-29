@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Soleinjast\ValidationResponse\Formatter;
 
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+
 /**
  *  Simple formatter that returns a flat array of field => message pairs.
  *  Example output:
@@ -16,7 +18,7 @@ namespace Soleinjast\ValidationResponse\Formatter;
  */
 class SimpleFormatter implements FormatterInterface
 {
-    public function format(\Symfony\Component\Validator\ConstraintViolationListInterface $violations): array
+    public function format(ConstraintViolationListInterface $violations): array
     {
         $errors = [];
         foreach ($violations as $violation) {

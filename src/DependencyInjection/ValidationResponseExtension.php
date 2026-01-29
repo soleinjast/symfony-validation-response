@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Soleinjast\ValidationResponse\DependencyInjection;
 
+use Exception;
 use Soleinjast\ValidationResponse\Command\TestValidationCommand;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,7 +22,7 @@ use Soleinjast\ValidationResponse\Formatter\NestedFormatter;
 final class ValidationResponseExtension extends Extension
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function load(array $configs, ContainerBuilder $container): void
     {

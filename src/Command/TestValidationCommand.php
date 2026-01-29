@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Soleinjast\ValidationResponse\Command;
 
+use Throwable;
 use Soleinjast\ValidationResponse\Formatter\FormatterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -72,7 +73,7 @@ final class TestValidationCommand extends Command
         try {
             $dto = $this->serializer->deserialize($jsonData, $fullClassName, 'json');
             $io->text('✓ JSON deserialized successfully');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $io->error('Failed to deserialize JSON');
             $io->block($e->getMessage(), null, 'fg=white;bg=red', ' ', true);
             return Command::FAILURE;

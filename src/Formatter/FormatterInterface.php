@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 namespace Soleinjast\ValidationResponse\Formatter;
+
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+
 /**
  * Interface for formatting validation violations into response arrays.
  */
@@ -11,8 +14,8 @@ interface FormatterInterface
     /**
      * Format validation violations into a response array.
      *
-     * @param \Symfony\Component\Validator\ConstraintViolationListInterface $violations The validation violations
+     * @param ConstraintViolationListInterface $violations The validation violations
      * @return array The formatted response data
      */
-    public function format(\Symfony\Component\Validator\ConstraintViolationListInterface $violations): array;
+    public function format(ConstraintViolationListInterface $violations): array;
 }
