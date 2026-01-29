@@ -10,6 +10,7 @@ use Soleinjast\ValidationResponse\DependencyInjection\ValidationResponseExtensio
 use Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener;
 use Soleinjast\ValidationResponse\Formatter\SimpleFormatter;
 use Soleinjast\ValidationResponse\Formatter\RFC7807Formatter;
+use Soleinjast\ValidationResponse\Formatter\NestedFormatter;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -36,6 +37,9 @@ final class ValidationResponseExtensionTest extends TestCase
 
         // RFC7807Formatter should be registered
         $this->assertTrue($this->container->has(RFC7807Formatter::class));
+
+        // NestedFormatter should be registered
+        $this->assertTrue($this->container->has(NestedFormatter::class));
 
         // Listener should be configured
         $this->assertTrue($this->container->has(ValidationExceptionListener::class));
@@ -90,6 +94,23 @@ final class ValidationResponseExtensionTest extends TestCase
         $this->assertSame(RFC7807Formatter::class, (string) $formatterArg);
     }
 
+    public function testLoadWithNestedFormat(): void
+    {
+        $configs = [
+            [
+                'format' => 'nested',
+                'status_code' => 422,
+            ],
+        ];
+
+        $this->extension->load($configs, $this->container);
+
+        $listenerDef = $this->container->getDefinition(ValidationExceptionListener::class);
+
+        $formatterArg = $listenerDef->getArgument('$formatter');
+        $this->assertSame(NestedFormatter::class, (string) $formatterArg);
+    }
+
     public function testLoadWithCustomRFC7807Configuration(): void
     {
         $configs = [
@@ -141,6 +162,9 @@ final class ValidationResponseExtensionTest extends TestCase
 
         $rfc7807FormatterDef = $this->container->getDefinition(RFC7807Formatter::class);
         $this->assertFalse($rfc7807FormatterDef->isPublic());
+
+        $nestedFormatterDef = $this->container->getDefinition(NestedFormatter::class);
+        $this->assertFalse($nestedFormatterDef->isPublic());
     }
 
     public function testMultipleLoadCalls(): void
@@ -283,6 +307,22 @@ final class ValidationResponseExtensionTest extends TestCase
         $commandDef = $this->container->getDefinition(TestValidationCommand::class);
         $formatterArg = $commandDef->getArgument('$formatter');
         $this->assertSame(RFC7807Formatter::class, (string) $formatterArg);
+    }
+
+    public function testCommandUsesNestedFormatterWhenConfigured(): void
+    {
+        $configs = [
+            [
+                'format' => 'nested',
+            ],
+        ];
+
+        $this->extension->load($configs, $this->container);
+
+        $commandDef = $this->container->getDefinition(TestValidationCommand::class);
+        $formatterArg = $commandDef->getArgument('$formatter');
+
+        $this->assertSame(NestedFormatter::class, (string) $formatterArg);
     }
 
     public function testCommandWithCompleteRFC7807Configuration(): void

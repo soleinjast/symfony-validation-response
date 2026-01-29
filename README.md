@@ -37,7 +37,7 @@ Stop writing repetitive error handling code in every controller. Let this bundle
 ## ✨ Features
 
 - ✅ **Zero Configuration** - Works immediately after installation with sensible defaults
-- ✅ **Multiple Formats** - Simple format (default) or RFC 7807 Problem Details
+- ✅ **Multiple Formats** - Simple (default), Nested, or RFC 7807 Problem Details
 - ✅ **Clean JSON Responses** - No verbose Symfony debug output
 - ✅ **RFC 7807 Compliant** - Industry-standard Problem Details for HTTP APIs
 - ✅ **Automatic Error Formatting** - Intercepts validation exceptions and formats them consistently
@@ -210,6 +210,22 @@ Clean, minimal error responses:
 }
 ```
 
+### Nested Format
+
+Nested objects are built from dotted property paths:
+
+```json
+{
+  "errors": {
+    "address": {
+      "city": [
+        "Invalid city"
+      ]
+    }
+  }
+}
+```
+
 ### RFC 7807 Problem Details Format
 
 Industry-standard error responses ([RFC 7807](https://tools.ietf.org/html/rfc7807)):
@@ -274,7 +290,7 @@ validation_response:
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `format` | `string` | `'simple'` | Response format: `'simple'` or `'rfc7807'` |
+| `format` | `string` | `'simple'` | Response format: `'simple'`, `'nested'`, or `'rfc7807'` |
 | `status_code` | `integer` | `422` | HTTP status code for validation errors (400-599) |
 | `rfc7807.type` | `string` | `'about:blank'` | URI identifying the problem type |
 | `rfc7807.title` | `string` | `'Validation Failed'` | Human-readable problem summary |
