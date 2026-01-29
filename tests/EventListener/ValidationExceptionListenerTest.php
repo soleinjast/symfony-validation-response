@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Soleinjast\ValidationResponse\Tests\EventListener;
 
+use RuntimeException;
 use PHPUnit\Framework\TestCase;
 use Soleinjast\ValidationResponse\EventListener\ValidationExceptionListener;
 use Soleinjast\ValidationResponse\Formatter\SimpleFormatter;
@@ -74,7 +75,7 @@ final class ValidationExceptionListenerTest extends TestCase
 
     public function testIgnoresNonValidationExceptions(): void
     {
-        $exception = new \RuntimeException('Some other error');
+        $exception = new RuntimeException('Some other error');
 
         $kernel = $this->createMock(HttpKernelInterface::class);
         $request = new Request();

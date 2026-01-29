@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Soleinjast\ValidationResponse\Formatter;
 
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+
 /**
  * Formatter that builds nested error objects from dotted property paths.
  */
 final class NestedFormatter implements FormatterInterface
 {
-    public function format(\Symfony\Component\Validator\ConstraintViolationListInterface $violations): array
+    public function format(ConstraintViolationListInterface $violations): array
     {
         $errors = [];
 
@@ -108,13 +110,6 @@ final class NestedFormatter implements FormatterInterface
         if (!array_is_list($value)) {
             return false;
         }
-
-        foreach ($value as $item) {
-            if (!is_string($item)) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all($value, fn($item): bool => is_string($item));
     }
 }
